@@ -56,7 +56,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     protected LocationRequest mLocationRequest;
     protected Location mCurrentLocation;
 
-    protected Button startButton, endButton, exitButton;
+    protected Button startButton, endButton, exitButton, historyButton;
     protected TextView LatitudeTextView, LongitudeTextView, TimeTextView;
     protected Boolean mRequestingLocationUpdates;
     protected String mLastUpdateTime;
@@ -95,6 +95,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
 
         startButton = (Button) findViewById(R.id.start_button);
         endButton = (Button) findViewById(R.id.end_button);
+        historyButton = (Button) findViewById(R.id.history_button);
         exitButton = (Button) findViewById(R.id.exit_button);
         LatitudeTextView = (TextView) findViewById(R.id.latitude_text);
         LongitudeTextView = (TextView) findViewById(R.id.longitude_text);
@@ -102,6 +103,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
 
         startButton.setOnClickListener(this);
         endButton.setOnClickListener(this);
+        historyButton.setOnClickListener(this);
         exitButton.setOnClickListener(this);
 
         mRequestingLocationUpdates = false;
@@ -234,6 +236,10 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                         e.printStackTrace();
                     }
                 }
+                break;
+            case R.id.history_button:
+                Intent historyIntent = new Intent(MainActivity.this, HistoryActivity.class);
+                startActivity(historyIntent);
                 break;
             case R.id.exit_button:
                 showFinishAlert();
