@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">Simple_Tracker</string>
+    <string name="start_button">Start Trip</string>
+    <string name="end_button">End Trip</string>
+    <string name="exit_button">Exit</string>
+    <string name="latitude">Latitude: </string>
+    <string name="longitude">Longitude: </string>
+    <string name="title_activity_maps">Trip_Map</string>
+</resources>
