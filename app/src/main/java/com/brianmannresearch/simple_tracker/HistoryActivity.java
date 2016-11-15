@@ -28,6 +28,10 @@ public class HistoryActivity extends AppCompatActivity implements View.OnClickLi
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_history);
 
+        tripText = (TextView) findViewById(R.id.tripText);
+        returnButton = (Button) findViewById(R.id.return_button);
+        tripButton = (Button) findViewById(R.id.trip_button);
+
         trips = new StringBuilder();
         trips.append("Existing Trips:");
         // check for previous trips to display
@@ -39,9 +43,6 @@ public class HistoryActivity extends AppCompatActivity implements View.OnClickLi
             }
         }
         tripText.setText(trips);
-
-        returnButton = (Button) findViewById(R.id.return_button);
-        tripButton = (Button) findViewById(R.id.history_button);
 
         returnButton.setOnClickListener(this);
         tripButton.setOnClickListener(this);

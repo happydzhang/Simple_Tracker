@@ -27,7 +27,7 @@
     <Button
         android:id="@+id/trip_button"
         android:text="@string/trip_button"
-        android:layout_above="@id/return_button"
+        android:layout_above="@+id/return_button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 
