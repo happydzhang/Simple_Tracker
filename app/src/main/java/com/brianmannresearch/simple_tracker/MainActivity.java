@@ -43,8 +43,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     // begin work on server feature
 
     private static final int LOCATION_REQUEST = 1, STORAGE_REQUEST = 2;
-    public static final long UPDATE_INTERVERAL_IN_MILLISECONDS = 1500;
-    protected final static String REQUESTING_LOCATION_UPDATES_KEY = "requesting-location-updates-key";
+    public static final long UPDATE_INTERVERAL_IN_MILLISECONDS = 1000;
     protected final static String LOCATION_KEY = "location-key";
     protected final static String LAST_UPDATED_TIME_STRING_KEY = "last-updated-time-string-key";
 
@@ -58,7 +57,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
 
     protected Button startButton, endButton, exitButton, historyButton;
     protected TextView LatitudeTextView, LongitudeTextView, TimeTextView;
-    protected Boolean mRequestingLocationUpdates;
+    protected Boolean mStoringLocationUpdates;
     protected String mLastUpdateTime;
 
     @Override
@@ -106,7 +105,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         historyButton.setOnClickListener(this);
         exitButton.setOnClickListener(this);
 
-        mRequestingLocationUpdates = false;
+        mStoringLocationUpdates = false;
         mLastUpdateTime = "";
 
         updateValuesFromBundle(savedInstanceState);
@@ -124,14 +123,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
 
     private void updateValuesFromBundle(Bundle savedInstanceState){
         if (savedInstanceState != null) {
-            // Update the value of mRequestingLocationUpdates from the Bundle, and make sure that
-            // the Start Updates and Stop Updates buttons are correctly enabled or disabled.
-            if (savedInstanceState.keySet().contains(REQUESTING_LOCATION_UPDATES_KEY)) {
-                mRequestingLocationUpdates = savedInstanceState.getBoolean(
-                        REQUESTING_LOCATION_UPDATES_KEY);
-                setButtonsEnabledState();
-            }
-
             // Update the value of mCurrentLocation from the Bundle and update the UI to show the
             // correct latitude and longitude.
             if (savedInstanceState.keySet().contains(LOCATION_KEY)) {
@@ -205,10 +196,9 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.start_button:
-                if (!mRequestingLocationUpdates) {
-                    mRequestingLocationUpdates = true;
-                    // begin getting location updates
-                    startLocationUpdates();
+                if (!mStoringLocationUpdates) {
+                    mStoringLocationUpdates = true;
+                    setButtonsEnabledState();
                     // create filename based off of current trip number
                     Filename = "Trip_" + String.valueOf(tripnumber);
                     // increment trip number value for future trips that might be run in this session
@@ -222,9 +212,9 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                 }
                 break;
             case R.id.end_button:
-                if (mRequestingLocationUpdates) {
-                    mRequestingLocationUpdates = false;
-                    stopLocationUpdates();
+                if (mStoringLocationUpdates) {
+                    mStoringLocationUpdates = false;
+                    setButtonsEnabledState();
                     try {
                         // close file
                         fos.close();
@@ -253,26 +243,24 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
 
     // modify what buttons can be pressed
     private void setButtonsEnabledState(){
-        if (mRequestingLocationUpdates){
+        if (mStoringLocationUpdates){
             startButton.setEnabled(false);
+            historyButton.setEnabled(false);
+            exitButton.setEnabled(false);
             endButton.setEnabled(true);
         }else{
             startButton.setEnabled(true);
+            historyButton.setEnabled(true);
+            exitButton.setEnabled(true);
             endButton.setEnabled(false);
         }
     }
 
     // refresh the display
     private void updateUI(){
-        try {
-            LatitudeTextView.setText(String.format(Locale.US, "%f", mCurrentLocation.getLatitude()));
-            LongitudeTextView.setText(String.format(Locale.US, "%f", mCurrentLocation.getLongitude()));
-            TimeTextView.setText(String.format(Locale.US, "%s", mLastUpdateTime));
-            // write the new data to the file
-            fos.write((String.valueOf(TimeTextView.getText()) + "::" + LatitudeTextView.getText() + "::" + LongitudeTextView.getText() + "\n").getBytes());
-        }catch (Exception e){
-            e.printStackTrace();
-        }
+        LatitudeTextView.setText(String.format(Locale.US, "%f", mCurrentLocation.getLatitude()));
+        LongitudeTextView.setText(String.format(Locale.US, "%f", mCurrentLocation.getLongitude()));
+        TimeTextView.setText(String.format(Locale.US, "%s", mLastUpdateTime));
     }
 
     protected void stopLocationUpdates(){
@@ -309,7 +297,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     @Override
     public void onResume(){
         super.onResume();
-        if (mGoogleApiClient.isConnected() && mRequestingLocationUpdates){
+        if (mGoogleApiClient.isConnected()){
             startLocationUpdates();
         }
     }
@@ -340,18 +328,31 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                 mLastUpdateTime = getTimeInstance().format(new Date());
             }
+            try {
+                if (mStoringLocationUpdates) {
+                    // write the new data to the file
+                    fos.write((String.valueOf(TimeTextView.getText()) + "::" + LatitudeTextView.getText() + "::" + LongitudeTextView.getText() + "\n").getBytes());
+                }
+            }catch(Exception e){
+                e.printStackTrace();
+            }
             updateUI();
         }
-
-        if (mRequestingLocationUpdates){
-            startLocationUpdates();
-        }
+        startLocationUpdates();
     }
 
     @Override
     public void onLocationChanged(Location location){
         mCurrentLocation = location;
         mLastUpdateTime = DateFormat.getTimeInstance().format(new Date());
+        try {
+            if (mStoringLocationUpdates) {
+                // write the new data to the file
+                fos.write((String.valueOf(TimeTextView.getText()) + "::" + LatitudeTextView.getText() + "::" + LongitudeTextView.getText() + "\n").getBytes());
+            }
+        }catch(Exception e){
+            e.printStackTrace();
+        }
         updateUI();
     }
 
@@ -366,7 +367,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     }
 
     public void onSaveInstanceState(Bundle savedInstanceState){
-        savedInstanceState.putBoolean(REQUESTING_LOCATION_UPDATES_KEY, mRequestingLocationUpdates);
         savedInstanceState.putParcelable(LOCATION_KEY, mCurrentLocation);
         savedInstanceState.putString(LAST_UPDATED_TIME_STRING_KEY, mLastUpdateTime);
         super.onSaveInstanceState(savedInstanceState);
