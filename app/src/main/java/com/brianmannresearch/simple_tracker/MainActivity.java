@@ -37,15 +37,8 @@ import static android.icu.text.DateFormat.getTimeInstance;
 
 public class MainActivity extends AppCompatActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener, View.OnClickListener {
 
-
-    // Play around with update interval - add ability for user to modify update interval
-    // implement map feature (i.e. place points on google map)
-    // begin work on server feature
-
     private static final int LOCATION_REQUEST = 1, STORAGE_REQUEST = 2;
     public static final long UPDATE_INTERVERAL_IN_MILLISECONDS = 1000;
-    protected final static String LOCATION_KEY = "location-key";
-    protected final static String LAST_UPDATED_TIME_STRING_KEY = "last-updated-time-string-key";
 
     String[] files, filename;
     int tripnumber = 1;
@@ -108,8 +101,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         mStoringLocationUpdates = false;
         mLastUpdateTime = "";
 
-        updateValuesFromBundle(savedInstanceState);
-
         if (mGoogleApiClient == null){
             mGoogleApiClient = new GoogleApiClient.Builder(this)
                     .addConnectionCallbacks(this)
@@ -119,24 +110,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         }
 
         createLocationRequest();
-    }
-
-    private void updateValuesFromBundle(Bundle savedInstanceState){
-        if (savedInstanceState != null) {
-            // Update the value of mCurrentLocation from the Bundle and update the UI to show the
-            // correct latitude and longitude.
-            if (savedInstanceState.keySet().contains(LOCATION_KEY)) {
-                // Since LOCATION_KEY was found in the Bundle, we can be sure that mCurrentLocation
-                // is not null.
-                mCurrentLocation = savedInstanceState.getParcelable(LOCATION_KEY);
-            }
-
-            // Update the value of mLastUpdateTime from the Bundle and update the UI.
-            if (savedInstanceState.keySet().contains(LAST_UPDATED_TIME_STRING_KEY)) {
-                mLastUpdateTime = savedInstanceState.getString(LAST_UPDATED_TIME_STRING_KEY);
-            }
-            updateUI();
-        }
     }
 
     protected void createLocationRequest(){
@@ -336,7 +309,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
             }catch(Exception e){
                 e.printStackTrace();
             }
-            updateUI();
         }
         startLocationUpdates();
     }
@@ -364,11 +336,5 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     @Override
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
 
-    }
-
-    public void onSaveInstanceState(Bundle savedInstanceState){
-        savedInstanceState.putParcelable(LOCATION_KEY, mCurrentLocation);
-        savedInstanceState.putString(LAST_UPDATED_TIME_STRING_KEY, mLastUpdateTime);
-        super.onSaveInstanceState(savedInstanceState);
     }
 }
