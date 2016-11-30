@@ -101,6 +101,8 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         mStoringLocationUpdates = false;
         mLastUpdateTime = "";
 
+        setButtonsEnabledState();
+
         if (mGoogleApiClient == null){
             mGoogleApiClient = new GoogleApiClient.Builder(this)
                     .addConnectionCallbacks(this)
