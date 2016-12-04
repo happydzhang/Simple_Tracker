@@ -144,6 +144,17 @@ public class HistoryActivity extends AppCompatActivity implements View.OnClickLi
                     public void onClick(DialogInterface dialogInterface, int i) {
                         Filename = "Trip_" + String.valueOf(tripid);
                         deleteFile(Filename);
+                        trips = new StringBuilder();
+                        trips.append("Existing Trips:");
+                        // check for previous trips to display
+                        files = fileList();
+                        for (String file : files) {
+                            filename = file.split("/");
+                            if (filename[filename.length - 1].matches("Trip_\\d*")) {
+                                trips.append("\n").append("- ").append(filename[filename.length - 1]);
+                            }
+                        }
+                        tripText.setText(trips);
                     }
                 })
                 .setNegativeButton("No", new DialogInterface.OnClickListener() {

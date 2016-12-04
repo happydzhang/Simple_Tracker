@@ -114,7 +114,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                     .build();
         }
         createLocationRequest();
-        showUpdatesAlert();
     }
 
     protected void createLocationRequest(){
@@ -203,6 +202,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         switch (view.getId()) {
             case R.id.start_button:
                 if (!mStoringLocationUpdates) {
+                    showUpdatesAlert();
                     mStoringLocationUpdates = true;
                     setButtonsEnabledState();
                     // create filename based off of current trip number
