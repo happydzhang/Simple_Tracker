@@ -15,7 +15,7 @@ import android.widget.Toast;
 
 public class HistoryActivity extends AppCompatActivity implements View.OnClickListener {
 
-    protected Button returnButton, tripButton;
+    protected Button returnButton, deleteButton, tripButton;
     protected TextView tripText;
 
     protected int tripid;
@@ -31,6 +31,7 @@ public class HistoryActivity extends AppCompatActivity implements View.OnClickLi
         tripText = (TextView) findViewById(R.id.tripText);
         returnButton = (Button) findViewById(R.id.return_button);
         tripButton = (Button) findViewById(R.id.trip_button);
+        deleteButton = (Button) findViewById(R.id.delete_button);
 
         trips = new StringBuilder();
         trips.append("Existing Trips:");
@@ -46,6 +47,7 @@ public class HistoryActivity extends AppCompatActivity implements View.OnClickLi
 
         returnButton.setOnClickListener(this);
         tripButton.setOnClickListener(this);
+        deleteButton.setOnClickListener(this);
     }
 
     @Override
@@ -53,6 +55,9 @@ public class HistoryActivity extends AppCompatActivity implements View.OnClickLi
         switch (view.getId()) {
             case R.id.trip_button:
                 showTripAlert();
+                break;
+            case R.id.delete_button:
+                showDeleteAlert();
                 break;
             case R.id.return_button:
                 finish();
@@ -93,6 +98,58 @@ public class HistoryActivity extends AppCompatActivity implements View.OnClickLi
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
                         // do nothing
+                    }
+                });
+        final AlertDialog alert = alertDialog.create();
+        alert.show();
+    }
+
+    private void showDeleteAlert(){
+        AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);
+        final LayoutInflater inflater = this.getLayoutInflater();
+
+        alertDialog.setMessage("What trip number do you want to delete?")
+                .setCancelable(false)
+                .setView(inflater.inflate(R.layout.trip_dialog, null))
+                .setPositiveButton("Confirm", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        Dialog f = (Dialog) dialogInterface;
+                        EditText text = (EditText) f.findViewById(R.id.tripID);
+                        String input = text.getText().toString();
+                        if (input.matches("")){
+                            Toast.makeText(HistoryActivity.this, "Please enter a value", Toast.LENGTH_LONG).show();
+                        }else {
+                            tripid = Integer.parseInt(input);
+                            showConfirmDeleteAlert();
+                        }
+                    }
+                })
+                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        // do nothing
+                    }
+                });
+        final AlertDialog alert = alertDialog.create();
+        alert.show();
+    }
+
+    private void showConfirmDeleteAlert(){
+        AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);
+        alertDialog.setMessage("Are you sure you want to delete this trip?")
+                .setCancelable(false)
+                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        Filename = "Trip_" + String.valueOf(tripid);
+                        deleteFile(Filename);
+                    }
+                })
+                .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+
                     }
                 });
         final AlertDialog alert = alertDialog.create();

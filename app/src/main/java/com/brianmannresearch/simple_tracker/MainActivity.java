@@ -1,6 +1,7 @@
 package com.brianmannresearch.simple_tracker;
 
 import android.Manifest;
+import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -16,10 +17,12 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
-
+import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -110,17 +113,14 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                     .addApi(LocationServices.API)
                     .build();
         }
-
         createLocationRequest();
+        showUpdatesAlert();
     }
 
     protected void createLocationRequest(){
         mLocationRequest = new LocationRequest();
-
         // desired interval for updates
         mLocationRequest.setInterval(UPDATE_INTERVERAL_IN_MILLISECONDS);
-        // fastest that the app can receive updates
-        mLocationRequest.setFastestInterval(UPDATE_INTERVERAL_IN_MILLISECONDS/2);
         mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
     }
 
@@ -161,6 +161,37 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                     public void onClick(final DialogInterface dialog, final int id){
                         dialog.cancel();
                         finish();
+                    }
+                });
+        final AlertDialog alert = alertDialog.create();
+        alert.show();
+    }
+
+    private void showUpdatesAlert(){
+        AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);
+        LayoutInflater inflater = this.getLayoutInflater();
+
+        alertDialog.setMessage("How often do you want to receive location updates? (Default is 1 second)")
+                .setCancelable(false)
+                .setView(inflater.inflate(R.layout.trip_dialog, null))
+                .setPositiveButton("Confirm", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        Dialog f = (Dialog) dialogInterface;
+                        EditText text = (EditText) f.findViewById(R.id.tripID);
+                        String input = text.getText().toString();
+                        if (input.matches("")){
+                            Toast.makeText(MainActivity.this, "Interval set to default", Toast.LENGTH_LONG).show();
+                            mLocationRequest.setInterval(UPDATE_INTERVERAL_IN_MILLISECONDS);
+                        }else {
+                            mLocationRequest.setInterval(Integer.parseInt(input) * 1000);
+                        }
+                    }
+                })
+                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        // do nothing
                     }
                 });
         final AlertDialog alert = alertDialog.create();
