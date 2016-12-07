@@ -190,7 +190,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
 
         alertDialog.setMessage("How often do you want to receive location updates? (Default is 1 second)")
                 .setCancelable(false)
-                .setView(inflater.inflate(R.layout.trip_dialog, null))
+                .setView(inflater.inflate(R.layout.number_dialog, null))
                 .setPositiveButton("Confirm", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
@@ -221,12 +221,12 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
 
         alertDialog.setMessage("No Google Accounts detected. Please enter a username!")
                 .setCancelable(false)
-                .setView(inflater.inflate(R.layout.username_dialog, null))
+                .setView(inflater.inflate(R.layout.text_dialog, null))
                 .setPositiveButton("Confirm", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
                         Dialog f = (Dialog) dialogInterface;
-                        EditText text = (EditText) f.findViewById(R.id.tripID);
+                        EditText text = (EditText) f.findViewById(R.id.text);
                         String input = text.getText().toString();
                         if (input.matches("")){
                             showUsernameAlert();

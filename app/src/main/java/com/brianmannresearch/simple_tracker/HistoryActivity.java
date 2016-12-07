@@ -18,7 +18,6 @@ public class HistoryActivity extends AppCompatActivity implements View.OnClickLi
     protected Button returnButton, deleteButton, tripButton;
     protected TextView tripText;
 
-    protected int tripid;
     protected String[] files, filename;
     protected String Filename, username;
     protected StringBuilder trips;
@@ -45,6 +44,8 @@ public class HistoryActivity extends AppCompatActivity implements View.OnClickLi
         for (String file : files) {
             filename = file.split("/");
             if (filename[filename.length - 1].matches(username + "_Trip_\\d*")) {
+                trips.append("\n").append("- ").append(filename[filename.length - 1]);
+            }else if (filename[filename.length - 1].matches("Trip_\\d*")){
                 trips.append("\n").append("- ").append(filename[filename.length - 1]);
             }
         }
@@ -79,23 +80,33 @@ public class HistoryActivity extends AppCompatActivity implements View.OnClickLi
         AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);
         LayoutInflater inflater = this.getLayoutInflater();
 
-        alertDialog.setMessage("What trip number do you want to view?")
+        alertDialog.setMessage("What trip do you want to view? (Please enter the full trip name)")
                 .setCancelable(false)
-                .setView(inflater.inflate(R.layout.trip_dialog, null))
+                .setView(inflater.inflate(R.layout.text_dialog, null))
                 .setPositiveButton("Confirm", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
                         Dialog f = (Dialog) dialogInterface;
-                        EditText text = (EditText) f.findViewById(R.id.tripID);
+                        EditText text = (EditText) f.findViewById(R.id.text);
                         String input = text.getText().toString();
                         if (input.matches("")){
-                            Toast.makeText(HistoryActivity.this, "Please enter a value", Toast.LENGTH_LONG).show();
+                            showTripAlert();
+                            Toast.makeText(HistoryActivity.this, "Please enter a filename", Toast.LENGTH_LONG).show();
                         }else {
-                            tripid = Integer.parseInt(input);
-                            Filename = username + "_Trip_" + String.valueOf(tripid);
-                            Intent mapsIntent = new Intent(HistoryActivity.this, MapsActivity.class);
-                            mapsIntent.putExtra("filename", Filename);
-                            startActivity(mapsIntent);
+                            Filename = input;
+                            boolean Launched = false;
+                            for (String file : files) {
+                                filename = file.split("/");
+                                if (filename[filename.length - 1].matches(Filename)) {
+                                    Launched = true;
+                                    Intent mapsIntent = new Intent(HistoryActivity.this, MapsActivity.class);
+                                    mapsIntent.putExtra("filename", Filename);
+                                    startActivity(mapsIntent);
+                                }
+                            }
+                            if (!Launched) {
+                                Toast.makeText(HistoryActivity.this, "Please enter a valid filename!", Toast.LENGTH_SHORT).show();
+                            }
                         }
                     }
                 })
@@ -113,20 +124,30 @@ public class HistoryActivity extends AppCompatActivity implements View.OnClickLi
         AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);
         final LayoutInflater inflater = this.getLayoutInflater();
 
-        alertDialog.setMessage("What trip number do you want to delete?")
+        alertDialog.setMessage("What trip do you want to delete? (Please enter a full filename)")
                 .setCancelable(false)
-                .setView(inflater.inflate(R.layout.trip_dialog, null))
+                .setView(inflater.inflate(R.layout.text_dialog, null))
                 .setPositiveButton("Confirm", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
                         Dialog f = (Dialog) dialogInterface;
-                        EditText text = (EditText) f.findViewById(R.id.tripID);
+                        EditText text = (EditText) f.findViewById(R.id.text);
                         String input = text.getText().toString();
                         if (input.matches("")){
-                            Toast.makeText(HistoryActivity.this, "Please enter a value", Toast.LENGTH_LONG).show();
+                            Toast.makeText(HistoryActivity.this, "Please enter a filename!", Toast.LENGTH_LONG).show();
                         }else {
-                            tripid = Integer.parseInt(input);
-                            showConfirmDeleteAlert();
+                            Filename = input;
+                            boolean Launched = false;
+                            for (String file : files) {
+                                filename = file.split("/");
+                                if (filename[filename.length - 1].matches(Filename)) {
+                                    Launched = true;
+                                    showConfirmDeleteAlert();
+                                }
+                            }
+                            if (!Launched) {
+                                Toast.makeText(HistoryActivity.this, "Please enter a valid filename!", Toast.LENGTH_SHORT).show();
+                            }
                         }
                     }
                 })
@@ -147,7 +168,6 @@ public class HistoryActivity extends AppCompatActivity implements View.OnClickLi
                 .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
-                        Filename = username + "_Trip_" + String.valueOf(tripid);
                         deleteFile(Filename);
                         trips = new StringBuilder();
                         trips.append("Existing Trips:");
