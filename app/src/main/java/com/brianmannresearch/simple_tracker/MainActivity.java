@@ -1,6 +1,8 @@
 package com.brianmannresearch.simple_tracker;
 
 import android.Manifest;
+import android.accounts.Account;
+import android.accounts.AccountManager;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -40,12 +42,12 @@ import static android.icu.text.DateFormat.getTimeInstance;
 
 public class MainActivity extends AppCompatActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener, View.OnClickListener {
 
-    private static final int LOCATION_REQUEST = 1, STORAGE_REQUEST = 2;
+    private static final int LOCATION_REQUEST = 1, STORAGE_REQUEST = 2, GET_ACCOUNTS = 3;
     public static final long UPDATE_INTERVERAL_IN_MILLISECONDS = 1000;
 
     String[] files, filename;
     int tripnumber = 1;
-    String Filename;
+    String Filename, username;
     FileOutputStream fos;
     protected GoogleApiClient mGoogleApiClient;
     protected LocationRequest mLocationRequest;
@@ -78,14 +80,30 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                 ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, STORAGE_REQUEST);
             }
         }
+        // check if application has permission to access stored accounts
+        // if not, request permission
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.GET_ACCOUNTS) != PackageManager.PERMISSION_GRANTED){
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.GET_ACCOUNTS}, GET_ACCOUNTS);
+        }
 
-        // check for previous trips in order to know which trip number should be instantiated
-        files = fileList();
-        for (String file : files) {
-            filename = file.split("/");
-            if (filename[filename.length - 1].matches("Trip_\\d*")) {
-                tripnumber++;
+        AccountManager accountManager = AccountManager.get(this);
+        Account[] accounts = accountManager.getAccountsByType("com.google");
+
+        try {
+            String account = accounts[0].name;
+            String splits[] = account.split("@");
+            username = splits[0];
+            // check for previous trips in order to know which trip number should be instantiated
+            files = fileList();
+            for (String file : files) {
+                filename = file.split("/");
+                if (filename[filename.length - 1].matches(username + "_Trip_\\d*")) {
+                    tripnumber++;
+                }
             }
+        }catch (Exception e){
+            showUsernameAlert();
+            e.printStackTrace();
         }
 
         startButton = (Button) findViewById(R.id.start_button);
@@ -197,6 +215,45 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         alert.show();
     }
 
+    private void showUsernameAlert(){
+        AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);
+        LayoutInflater inflater = this.getLayoutInflater();
+
+        alertDialog.setMessage("No Google Accounts detected. Please enter a username!")
+                .setCancelable(false)
+                .setView(inflater.inflate(R.layout.username_dialog, null))
+                .setPositiveButton("Confirm", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        Dialog f = (Dialog) dialogInterface;
+                        EditText text = (EditText) f.findViewById(R.id.tripID);
+                        String input = text.getText().toString();
+                        if (input.matches("")){
+                            showUsernameAlert();
+                            Toast.makeText(MainActivity.this, "Please enter a username", Toast.LENGTH_LONG).show();
+                        }else {
+                            username = input;
+                            // check for previous trips in order to know which trip number should be instantiated
+                            files = fileList();
+                            for (String file : files) {
+                                filename = file.split("/");
+                                if (filename[filename.length - 1].matches(username + "_Trip_\\d*")) {
+                                    tripnumber++;
+                                }
+                            }
+                        }
+                    }
+                })
+                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        // do nothing
+                    }
+                });
+        final AlertDialog alert = alertDialog.create();
+        alert.show();
+    }
+
     @Override
     public void onClick(View view) {
         switch (view.getId()) {
@@ -206,7 +263,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                     mStoringLocationUpdates = true;
                     setButtonsEnabledState();
                     // create filename based off of current trip number
-                    Filename = "Trip_" + String.valueOf(tripnumber);
+                    Filename = username + "_Trip_" + String.valueOf(tripnumber);
                     // increment trip number value for future trips that might be run in this session
                     tripnumber++;
                     try {
@@ -235,6 +292,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                 break;
             case R.id.history_button:
                 Intent historyIntent = new Intent(MainActivity.this, HistoryActivity.class);
+                historyIntent.putExtra("username", username);
                 startActivity(historyIntent);
                 break;
             case R.id.exit_button:
