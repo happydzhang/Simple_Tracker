@@ -177,6 +177,8 @@ public class HistoryActivity extends AppCompatActivity implements View.OnClickLi
                             filename = file.split("/");
                             if (filename[filename.length - 1].matches(username + "_Trip_\\d*")) {
                                 trips.append("\n").append("- ").append(filename[filename.length - 1]);
+                            }else if (filename[filename.length - 1].matches("Trip_\\d*")) {
+                                trips.append("\n").append("- ").append(filename[filename.length - 1]);
                             }
                         }
                         tripText.setText(trips);
