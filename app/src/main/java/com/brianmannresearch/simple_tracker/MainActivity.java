@@ -1,8 +1,6 @@
 package com.brianmannresearch.simple_tracker;
 
 import android.Manifest;
-import android.accounts.Account;
-import android.accounts.AccountManager;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -43,20 +41,20 @@ import static android.icu.text.DateFormat.getTimeInstance;
 public class MainActivity extends AppCompatActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener, View.OnClickListener {
 
     private static final int LOCATION_REQUEST = 1, STORAGE_REQUEST = 2, GET_ACCOUNTS = 3;
-    public static final long UPDATE_INTERVERAL_IN_MILLISECONDS = 1000;
+    private static final long UPDATE_INTERVERAL_IN_MILLISECONDS = 1000;
 
-    String[] files, filename;
-    int tripnumber = 1;
-    String Filename, username;
-    FileOutputStream fos;
-    protected GoogleApiClient mGoogleApiClient;
-    protected LocationRequest mLocationRequest;
-    protected Location mCurrentLocation;
+    private String[] files, filename;
+    private int tripnumber = 1;
+    private String Filename, username;
+    private FileOutputStream fos;
+    private GoogleApiClient mGoogleApiClient;
+    private LocationRequest mLocationRequest;
+    private Location mCurrentLocation;
 
-    protected Button startButton, endButton, exitButton, historyButton;
-    protected TextView LatitudeTextView, LongitudeTextView, TimeTextView;
-    protected Boolean mStoringLocationUpdates;
-    protected String mLastUpdateTime;
+    private Button startButton, endButton, exitButton, historyButton;
+    private TextView LatitudeTextView, LongitudeTextView, TimeTextView;
+    private Boolean mStoringLocationUpdates;
+    private String mLastUpdateTime;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -86,25 +84,8 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.GET_ACCOUNTS}, GET_ACCOUNTS);
         }
 
-        AccountManager accountManager = AccountManager.get(this);
-        Account[] accounts = accountManager.getAccountsByType("com.google");
-
-        try {
-            String account = accounts[0].name;
-            String splits[] = account.split("@");
-            username = splits[0];
-            // check for previous trips in order to know which trip number should be instantiated
-            files = fileList();
-            for (String file : files) {
-                filename = file.split("/");
-                if (filename[filename.length - 1].matches(username + "_Trip_\\d*")) {
-                    tripnumber++;
-                }
-            }
-        }catch (Exception e){
-            showUsernameAlert();
-            e.printStackTrace();
-        }
+        // get the username
+        showUsernameAlert();
 
         startButton = (Button) findViewById(R.id.start_button);
         endButton = (Button) findViewById(R.id.end_button);
@@ -134,7 +115,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         createLocationRequest();
     }
 
-    protected void createLocationRequest(){
+    private void createLocationRequest(){
         mLocationRequest = new LocationRequest();
         // desired interval for updates
         mLocationRequest.setInterval(UPDATE_INTERVERAL_IN_MILLISECONDS);
@@ -219,7 +200,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);
         LayoutInflater inflater = this.getLayoutInflater();
 
-        alertDialog.setMessage("No Google Accounts detected. Please enter a username!")
+        alertDialog.setMessage("Please enter a username:")
                 .setCancelable(false)
                 .setView(inflater.inflate(R.layout.text_dialog, null))
                 .setPositiveButton("Confirm", new DialogInterface.OnClickListener() {
@@ -237,7 +218,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                             files = fileList();
                             for (String file : files) {
                                 filename = file.split("/");
-                                if (filename[filename.length - 1].matches(username + "_Trip_\\d*")) {
+                                if (filename[filename.length - 1].matches(username + "\\S*Trip_\\d*")) {
                                     tripnumber++;
                                 }
                             }
@@ -292,7 +273,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                 break;
             case R.id.history_button:
                 Intent historyIntent = new Intent(MainActivity.this, HistoryActivity.class);
-                historyIntent.putExtra("username", username);
                 startActivity(historyIntent);
                 break;
             case R.id.exit_button:
@@ -300,7 +280,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                 break;
         }
     }
-    protected void startLocationUpdates(){
+    private void startLocationUpdates(){
         LocationServices.FusedLocationApi.requestLocationUpdates(
                 mGoogleApiClient, mLocationRequest, this);
     }
@@ -327,7 +307,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         TimeTextView.setText(String.format(Locale.US, "%s", mLastUpdateTime));
     }
 
-    protected void stopLocationUpdates(){
+    private void stopLocationUpdates(){
         LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
     }
 

@@ -10,46 +10,51 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 public class HistoryActivity extends AppCompatActivity implements View.OnClickListener {
 
-    protected Button returnButton, deleteButton, tripButton;
-    protected TextView tripText;
-
-    protected String[] files, filename;
-    protected String Filename, username;
-    protected StringBuilder trips;
+    private Button returnButton, deleteButton, tripButton;
+    private LinearLayout linearLayout;
+    private TextView[] tv;
+    private String[] files, filename;
+    private String Filename;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_history);
 
-        Bundle extras = getIntent().getExtras();
-        if (extras != null){
-            username = extras.getString("username");
-        }
-
-        tripText = (TextView) findViewById(R.id.tripText);
         returnButton = (Button) findViewById(R.id.return_button);
         tripButton = (Button) findViewById(R.id.trip_button);
         deleteButton = (Button) findViewById(R.id.delete_button);
 
-        trips = new StringBuilder();
-        trips.append("Existing Trips:");
+        linearLayout = (LinearLayout) findViewById(R.id.history_linear);
+
         // check for previous trips to display
         files = fileList();
+
+        int size = files.length;
+        tv = new TextView[size];
+        TextView temp;
+        String textview = "Existing Trips:";
+        temp = new TextView(this);
+        temp.setText(textview);
+        int i = 0;
         for (String file : files) {
             filename = file.split("/");
-            if (filename[filename.length - 1].matches(username + "_Trip_\\d*")) {
-                trips.append("\n").append("- ").append(filename[filename.length - 1]);
-            }else if (filename[filename.length - 1].matches("Trip_\\d*")){
-                trips.append("\n").append("- ").append(filename[filename.length - 1]);
+            if (filename[filename.length - 1].matches("\\S*Trip_\\d*")) {
+                temp = new TextView(this);
+                textview = "\n- " + filename[filename.length - 1];
+                temp.setText(textview);
+                linearLayout.addView(temp);
+
+                tv[i] = temp;
+                i++;
             }
         }
-        tripText.setText(trips);
 
         returnButton.setOnClickListener(this);
         tripButton.setOnClickListener(this);
@@ -74,6 +79,7 @@ public class HistoryActivity extends AppCompatActivity implements View.OnClickLi
     @Override
     public void onBackPressed() {
         super.onBackPressed();
+        finish();
     }
 
     private void showTripAlert(){
@@ -169,19 +175,31 @@ public class HistoryActivity extends AppCompatActivity implements View.OnClickLi
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
                         deleteFile(Filename);
-                        trips = new StringBuilder();
-                        trips.append("Existing Trips:");
+                        for (TextView textView : tv){
+                            linearLayout.removeView(textView);
+                        }
                         // check for previous trips to display
                         files = fileList();
+
+                        int size = files.length;
+                        tv = new TextView[size];
+                        TextView temp;
+                        String textview = "Existing Trips:";
+                        temp = new TextView(HistoryActivity.this);
+                        temp.setText(textview);
+                        int j = 0;
                         for (String file : files) {
                             filename = file.split("/");
-                            if (filename[filename.length - 1].matches(username + "_Trip_\\d*")) {
-                                trips.append("\n").append("- ").append(filename[filename.length - 1]);
-                            }else if (filename[filename.length - 1].matches("Trip_\\d*")) {
-                                trips.append("\n").append("- ").append(filename[filename.length - 1]);
+                            if (filename[filename.length - 1].matches("\\S*Trip_\\d*")) {
+                                temp = new TextView(HistoryActivity.this);
+                                textview = "\n- " + filename[filename.length - 1];
+                                temp.setText(textview);
+                                linearLayout.addView(temp);
+
+                                tv[j] = temp;
+                                j++;
                             }
                         }
-                        tripText.setText(trips);
                     }
                 })
                 .setNegativeButton("No", new DialogInterface.OnClickListener() {

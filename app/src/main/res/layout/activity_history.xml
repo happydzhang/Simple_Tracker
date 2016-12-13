@@ -10,32 +10,33 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="com.brianmannresearch.simple_tracker.HistoryActivity">
 
-    <TextView
-        android:id="@+id/tripText"
-        android:textSize="16sp"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"/>
+    <LinearLayout
+        android:id="@+id/history_linear"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+    </LinearLayout>
 
     <Button
         android:id="@+id/return_button"
         android:text="@string/return_button"
-        android:layout_alignParentBottom="true"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"/>
 
     <Button
         android:id="@+id/delete_button"
         android:text="@string/delete_button"
         android:layout_width="match_parent"
-        android:layout_above="@id/return_button"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/return_button"/>
 
     <Button
         android:id="@+id/trip_button"
         android:text="@string/trip_button"
-        android:layout_above="@+id/delete_button"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/delete_button"/>
 
 </RelativeLayout>

@@ -17,7 +17,7 @@ import java.io.InputStreamReader;
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
 
     private GoogleMap mMap;
-    String Filename;
+    private String Filename;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
