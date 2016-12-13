@@ -3,6 +3,7 @@ package com.brianmannresearch.simple_tracker;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Color;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -16,7 +17,7 @@ import android.widget.Toast;
 
 public class HistoryActivity extends AppCompatActivity implements View.OnClickListener {
 
-    private Button returnButton, deleteButton, tripButton;
+    private Button returnButton, deleteButton;
     private LinearLayout linearLayout;
     private TextView[] tv;
     private String[] files, filename;
@@ -28,7 +29,6 @@ public class HistoryActivity extends AppCompatActivity implements View.OnClickLi
         setContentView(R.layout.activity_history);
 
         returnButton = (Button) findViewById(R.id.return_button);
-        tripButton = (Button) findViewById(R.id.trip_button);
         deleteButton = (Button) findViewById(R.id.delete_button);
 
         linearLayout = (LinearLayout) findViewById(R.id.history_linear);
@@ -47,31 +47,38 @@ public class HistoryActivity extends AppCompatActivity implements View.OnClickLi
             filename = file.split("/");
             if (filename[filename.length - 1].matches("\\S*Trip_\\d*")) {
                 temp = new TextView(this);
-                textview = "\n- " + filename[filename.length - 1];
+                temp.setId(i);
+                textview = filename[filename.length - 1];
                 temp.setText(textview);
+                temp.setTextColor(Color.BLUE);
+                temp.setClickable(true);
+                temp.setOnClickListener(this);
                 linearLayout.addView(temp);
-
                 tv[i] = temp;
                 i++;
             }
         }
 
         returnButton.setOnClickListener(this);
-        tripButton.setOnClickListener(this);
         deleteButton.setOnClickListener(this);
     }
 
     @Override
     public void onClick(View view) {
         switch (view.getId()) {
-            case R.id.trip_button:
-                showTripAlert();
-                break;
             case R.id.delete_button:
                 showDeleteAlert();
                 break;
             case R.id.return_button:
                 finish();
+                break;
+            default:
+                TextView textView = (TextView) findViewById(view.getId());
+                Filename = textView.getText().toString();
+                Toast.makeText(this, Filename, Toast.LENGTH_LONG).show();
+                Intent mapsIntent = new Intent(HistoryActivity.this, MapsActivity.class);
+                mapsIntent.putExtra("filename", Filename);
+                startActivity(mapsIntent);
                 break;
         }
     }
@@ -80,50 +87,6 @@ public class HistoryActivity extends AppCompatActivity implements View.OnClickLi
     public void onBackPressed() {
         super.onBackPressed();
         finish();
-    }
-
-    private void showTripAlert(){
-        AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);
-        LayoutInflater inflater = this.getLayoutInflater();
-
-        alertDialog.setMessage("What trip do you want to view? (Please enter the full trip name)")
-                .setCancelable(false)
-                .setView(inflater.inflate(R.layout.text_dialog, null))
-                .setPositiveButton("Confirm", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        Dialog f = (Dialog) dialogInterface;
-                        EditText text = (EditText) f.findViewById(R.id.text);
-                        String input = text.getText().toString();
-                        if (input.matches("")){
-                            showTripAlert();
-                            Toast.makeText(HistoryActivity.this, "Please enter a filename", Toast.LENGTH_LONG).show();
-                        }else {
-                            Filename = input;
-                            boolean Launched = false;
-                            for (String file : files) {
-                                filename = file.split("/");
-                                if (filename[filename.length - 1].matches(Filename)) {
-                                    Launched = true;
-                                    Intent mapsIntent = new Intent(HistoryActivity.this, MapsActivity.class);
-                                    mapsIntent.putExtra("filename", Filename);
-                                    startActivity(mapsIntent);
-                                }
-                            }
-                            if (!Launched) {
-                                Toast.makeText(HistoryActivity.this, "Please enter a valid filename!", Toast.LENGTH_SHORT).show();
-                            }
-                        }
-                    }
-                })
-                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        // do nothing
-                    }
-                });
-        final AlertDialog alert = alertDialog.create();
-        alert.show();
     }
 
     private void showDeleteAlert(){
@@ -192,10 +155,12 @@ public class HistoryActivity extends AppCompatActivity implements View.OnClickLi
                             filename = file.split("/");
                             if (filename[filename.length - 1].matches("\\S*Trip_\\d*")) {
                                 temp = new TextView(HistoryActivity.this);
-                                textview = "\n- " + filename[filename.length - 1];
+                                textview = filename[filename.length - 1];
                                 temp.setText(textview);
+                                temp.setTextColor(Color.BLUE);
+                                temp.setClickable(true);
+                                temp.setOnClickListener(HistoryActivity.this);
                                 linearLayout.addView(temp);
-
                                 tv[j] = temp;
                                 j++;
                             }
