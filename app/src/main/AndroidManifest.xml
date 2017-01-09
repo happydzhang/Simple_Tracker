@@ -42,6 +42,7 @@
                 android:value="com.brianmannresearch.simple_tracker.MainActivity" />
         </activity>
         <activity android:name=".HistoryActivity" />
+        <activity android:name=".UploadActivity"></activity>
     </application>
 
 </manifest>

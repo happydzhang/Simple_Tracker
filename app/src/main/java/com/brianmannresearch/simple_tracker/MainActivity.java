@@ -51,7 +51,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     private LocationRequest mLocationRequest;
     private Location mCurrentLocation;
 
-    private Button startButton, endButton, exitButton, historyButton;
+    private Button startButton, endButton, exitButton, historyButton, uploadButton;
     private TextView LatitudeTextView, LongitudeTextView, TimeTextView;
     private Boolean mStoringLocationUpdates;
     private String mLastUpdateTime;
@@ -91,6 +91,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         endButton = (Button) findViewById(R.id.end_button);
         historyButton = (Button) findViewById(R.id.history_button);
         exitButton = (Button) findViewById(R.id.exit_button);
+        uploadButton = (Button) findViewById(R.id.upload_button);
         LatitudeTextView = (TextView) findViewById(R.id.latitude_text);
         LongitudeTextView = (TextView) findViewById(R.id.longitude_text);
         TimeTextView = (TextView) findViewById(R.id.time_text);
@@ -99,6 +100,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         endButton.setOnClickListener(this);
         historyButton.setOnClickListener(this);
         exitButton.setOnClickListener(this);
+        uploadButton.setOnClickListener(this);
 
         mStoringLocationUpdates = false;
         mLastUpdateTime = "";
@@ -274,6 +276,10 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
             case R.id.history_button:
                 Intent historyIntent = new Intent(MainActivity.this, HistoryActivity.class);
                 startActivity(historyIntent);
+                break;
+            case R.id.upload_button:
+                Intent uploadIntent = new Intent(MainActivity.this, UploadActivity.class);
+                startActivity(uploadIntent);
                 break;
             case R.id.exit_button:
                 showFinishAlert();

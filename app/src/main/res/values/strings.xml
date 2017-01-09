@@ -10,4 +10,5 @@
     <string name="longitude">Longitude: </string>
     <string name="title_activity_maps">Trip_Map</string>
     <string name="delete_button">Delete Trip</string>
+    <string name="upload_button">Upload Trip</string>
 </resources>
