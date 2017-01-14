@@ -37,7 +37,7 @@ public class UploadActivity extends AppCompatActivity implements View.OnClickLis
 
         returnButton = (Button) findViewById(R.id.return_button);
 
-        upLoadServerUrl = "http://0.0.0.0:8000/upload.php";
+        upLoadServerUrl = "http://192.168.0.5:80/my-site/tracker/upload.php";
 
         linearLayout = (LinearLayout) findViewById(R.id.upload_linear);
         // check for previous trips to display
@@ -94,7 +94,7 @@ public class UploadActivity extends AppCompatActivity implements View.OnClickLis
         AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);
 
         alertDialog.setTitle("Upload");
-        alertDialog.setMessage("Are you sure you want to upload" + Filename+ "?")
+        alertDialog.setMessage("Are you sure you want to upload " + Filename+ "?")
                 .setCancelable(false)
                 .setPositiveButton("Yes", new DialogInterface.OnClickListener(){
                     public void onClick(final DialogInterface d, final int id) {
@@ -189,6 +189,11 @@ public class UploadActivity extends AppCompatActivity implements View.OnClickLis
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {Toast.makeText(UploadActivity.this, "Upload complete...", Toast.LENGTH_LONG).show();}
+                    });
+                }else{
+                    runOnUiThread(new Runnable(){
+                        @Override
+                        public void run() {Toast.makeText(UploadActivity.this, "Upload failed...", Toast.LENGTH_LONG).show();}
                     });
                 }
 
