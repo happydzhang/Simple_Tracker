@@ -1,9 +1,7 @@
 package com.brianmannresearch.simple_tracker;
 
 import android.app.ProgressDialog;
-import android.content.DialogInterface;
 import android.graphics.Color;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -25,7 +23,7 @@ public class UploadActivity extends AppCompatActivity implements View.OnClickLis
     private Button returnButton;
     private LinearLayout linearLayout;
     private TextView[] tv;
-    private String[] files, filename;
+    private String[] files;
     private String Filename, upLoadServerUrl;
     private ProgressDialog dialog = null;
     private int serverResponseCode = 0;
@@ -37,7 +35,7 @@ public class UploadActivity extends AppCompatActivity implements View.OnClickLis
 
         returnButton = (Button) findViewById(R.id.return_button);
 
-        upLoadServerUrl = "http://192.168.0.5:80/my-site/tracker/upload.php";
+        upLoadServerUrl = "http://ndssl.000webhostapp.com/tracker/upload.php";
 
         linearLayout = (LinearLayout) findViewById(R.id.upload_linear);
         // check for previous trips to display
@@ -51,11 +49,10 @@ public class UploadActivity extends AppCompatActivity implements View.OnClickLis
         temp.setText(textview);
         int i = 0;
         for (String file : files) {
-            filename = file.split("/");
-            if (filename[filename.length - 1].matches("\\S*Trip_\\d*")) {
+            if (file.matches("\\S*Trip_\\d*")) {
                 temp = new TextView(this);
                 temp.setId(i);
-                textview = filename[filename.length - 1];
+                textview = file;
                 temp.setText(textview);
                 temp.setTextColor(Color.BLUE);
                 temp.setClickable(true);
@@ -76,9 +73,21 @@ public class UploadActivity extends AppCompatActivity implements View.OnClickLis
                 finish();
                 break;
             default:
+                dialog = ProgressDialog.show(UploadActivity.this, "", "Uploading...", true);
                 TextView textView = (TextView) findViewById(view.getId());
                 Filename = textView.getText().toString();
-                showUploadAlert();
+                Thread thread = new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        uploadPhoto(Filename);
+                    }
+                });
+                thread.start();
+                try {
+                    thread.join();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
                 break;
         }
     }
@@ -89,40 +98,6 @@ public class UploadActivity extends AppCompatActivity implements View.OnClickLis
         finish();
     }
 
-    // inform user that location services must be enabled
-    private void showUploadAlert(){
-        AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);
-
-        alertDialog.setTitle("Upload");
-        alertDialog.setMessage("Are you sure you want to upload " + Filename+ "?")
-                .setCancelable(false)
-                .setPositiveButton("Yes", new DialogInterface.OnClickListener(){
-                    public void onClick(final DialogInterface d, final int id) {
-                        dialog = ProgressDialog.show(UploadActivity.this, "", "Uploading...", true);
-                        Thread thread = new Thread(new Runnable(){
-                            @Override
-                            public void run(){
-                                uploadPhoto(Filename);
-                            }
-                        });
-                        thread.start();
-                        try{
-                            thread.join();
-                        }catch(InterruptedException e){
-                            e.printStackTrace();
-                        }
-                    }
-                })
-                .setNegativeButton("No", new DialogInterface.OnClickListener() {
-                    public void onClick(final DialogInterface dialog, final int id){
-                        dialog.cancel();
-                        finish();
-                    }
-                });
-        final AlertDialog alert = alertDialog.create();
-        alert.show();
-    }
-
     private int uploadPhoto(String sourceFileUri) {
         HttpURLConnection conn;
         DataOutputStream dos;
@@ -130,12 +105,18 @@ public class UploadActivity extends AppCompatActivity implements View.OnClickLis
         int bytesRead, bytesAvailable, bufferSize;
         byte[] buffer;
         int maxBufferSize = 1024 * 1024;
-        File sourceFile = new File(sourceFileUri);
+        File sourceFile = getBaseContext().getFileStreamPath(sourceFileUri);
 
         if (!sourceFile.isFile()) {
             dialog.dismiss();
 
             Log.e("uploadFile", "Source File does not exist: " + sourceFileUri);
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    Toast.makeText(UploadActivity.this, Filename + " does not exist", Toast.LENGTH_LONG).show();
+                }
+            });
             return 0;
         } else {
             try {
@@ -155,6 +136,14 @@ public class UploadActivity extends AppCompatActivity implements View.OnClickLis
                 conn.setRequestProperty("uploaded_file", sourceFileUri);
 
                 dos = new DataOutputStream(conn.getOutputStream());
+
+                dos.writeBytes("--" + boundary + "\r\n");
+                dos.writeBytes("Content-Disposition: form-data; name=filename;filename=" + sourceFileUri + "\r\n");
+                dos.writeBytes("\r\n");
+
+                dos.writeBytes(sourceFileUri);
+                dos.writeBytes("\r\n");
+                dos.writeBytes("--" + boundary + "\r\n");
 
                 dos.writeBytes("--" + boundary + "\r\n");
                 dos.writeBytes("Content-Disposition: form-data; name=uploaded_file;sourceFile=" + sourceFileUri + "\r\n");
@@ -188,12 +177,16 @@ public class UploadActivity extends AppCompatActivity implements View.OnClickLis
                 if (serverResponseCode == 200) {
                     runOnUiThread(new Runnable() {
                         @Override
-                        public void run() {Toast.makeText(UploadActivity.this, "Upload complete...", Toast.LENGTH_LONG).show();}
+                        public void run() {
+                            Toast.makeText(UploadActivity.this, "Upload complete...", Toast.LENGTH_LONG).show();
+                        }
                     });
-                }else{
-                    runOnUiThread(new Runnable(){
+                } else {
+                    runOnUiThread(new Runnable() {
                         @Override
-                        public void run() {Toast.makeText(UploadActivity.this, "Upload failed...", Toast.LENGTH_LONG).show();}
+                        public void run() {
+                            Toast.makeText(UploadActivity.this, "Upload failed...", Toast.LENGTH_LONG).show();
+                        }
                     });
                 }
 

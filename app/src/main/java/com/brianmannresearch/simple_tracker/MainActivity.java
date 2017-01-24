@@ -121,6 +121,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         mLocationRequest = new LocationRequest();
         // desired interval for updates
         mLocationRequest.setInterval(UPDATE_INTERVERAL_IN_MILLISECONDS);
+        mLocationRequest.setFastestInterval(UPDATE_INTERVERAL_IN_MILLISECONDS);
         mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
     }
 
@@ -183,8 +184,10 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                         if (input.matches("")){
                             Toast.makeText(MainActivity.this, "Interval set to default", Toast.LENGTH_LONG).show();
                             mLocationRequest.setInterval(UPDATE_INTERVERAL_IN_MILLISECONDS);
+                            mLocationRequest.setFastestInterval(UPDATE_INTERVERAL_IN_MILLISECONDS);
                         }else {
                             mLocationRequest.setInterval(Integer.parseInt(input) * 1000);
+                            mLocationRequest.setFastestInterval(Integer.parseInt(input) * 1000);
                         }
                     }
                 })
@@ -231,6 +234,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
                         // do nothing
+                        finish();
                     }
                 });
         final AlertDialog alert = alertDialog.create();

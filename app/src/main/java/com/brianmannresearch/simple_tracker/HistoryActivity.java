@@ -20,7 +20,7 @@ public class HistoryActivity extends AppCompatActivity implements View.OnClickLi
     private Button returnButton, deleteButton;
     private LinearLayout linearLayout;
     private TextView[] tv;
-    private String[] files, filename;
+    private String[] files;
     private String Filename;
 
     @Override
@@ -44,11 +44,10 @@ public class HistoryActivity extends AppCompatActivity implements View.OnClickLi
         temp.setText(textview);
         int i = 0;
         for (String file : files) {
-            filename = file.split("/");
-            if (filename[filename.length - 1].matches("\\S*Trip_\\d*")) {
+            if (file.matches("\\S*Trip_\\d*")) {
                 temp = new TextView(this);
                 temp.setId(i);
-                textview = filename[filename.length - 1];
+                textview = file;
                 temp.setText(textview);
                 temp.setTextColor(Color.BLUE);
                 temp.setClickable(true);
@@ -108,8 +107,7 @@ public class HistoryActivity extends AppCompatActivity implements View.OnClickLi
                             Filename = input;
                             boolean Launched = false;
                             for (String file : files) {
-                                filename = file.split("/");
-                                if (filename[filename.length - 1].matches(Filename)) {
+                                if (file.matches(Filename)) {
                                     Launched = true;
                                     showConfirmDeleteAlert();
                                 }
@@ -152,10 +150,9 @@ public class HistoryActivity extends AppCompatActivity implements View.OnClickLi
                         temp.setText(textview);
                         int j = 0;
                         for (String file : files) {
-                            filename = file.split("/");
-                            if (filename[filename.length - 1].matches("\\S*Trip_\\d*")) {
+                            if (file.matches("\\S*Trip_\\d*")) {
                                 temp = new TextView(HistoryActivity.this);
-                                textview = filename[filename.length - 1];
+                                textview = file;
                                 temp.setText(textview);
                                 temp.setTextColor(Color.BLUE);
                                 temp.setClickable(true);
