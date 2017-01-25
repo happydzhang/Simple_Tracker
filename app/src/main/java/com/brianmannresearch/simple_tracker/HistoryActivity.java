@@ -152,6 +152,7 @@ public class HistoryActivity extends AppCompatActivity implements View.OnClickLi
                         for (String file : files) {
                             if (file.matches("\\S*Trip_\\d*")) {
                                 temp = new TextView(HistoryActivity.this);
+                                temp.setId(j);
                                 textview = file;
                                 temp.setText(textview);
                                 temp.setTextColor(Color.BLUE);
