@@ -168,39 +168,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         alert.show();
     }
 
-    private void showUpdatesAlert(){
-        AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);
-        LayoutInflater inflater = this.getLayoutInflater();
-
-        alertDialog.setMessage("How often do you want to receive location updates? (Default is 1 second)")
-                .setCancelable(false)
-                .setView(inflater.inflate(R.layout.number_dialog, null))
-                .setPositiveButton("Confirm", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        Dialog f = (Dialog) dialogInterface;
-                        EditText text = (EditText) f.findViewById(R.id.tripID);
-                        String input = text.getText().toString();
-                        if (input.matches("")){
-                            Toast.makeText(MainActivity.this, "Interval set to default", Toast.LENGTH_LONG).show();
-                            mLocationRequest.setInterval(UPDATE_INTERVERAL_IN_MILLISECONDS);
-                            mLocationRequest.setFastestInterval(UPDATE_INTERVERAL_IN_MILLISECONDS);
-                        }else {
-                            mLocationRequest.setInterval(Integer.parseInt(input) * 1000);
-                            mLocationRequest.setFastestInterval(Integer.parseInt(input) * 1000);
-                        }
-                    }
-                })
-                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        // do nothing
-                    }
-                });
-        final AlertDialog alert = alertDialog.create();
-        alert.show();
-    }
-
     private void showUsernameAlert(){
         AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);
         LayoutInflater inflater = this.getLayoutInflater();
@@ -246,7 +213,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         switch (view.getId()) {
             case R.id.start_button:
                 if (!mStoringLocationUpdates) {
-                    showUpdatesAlert();
                     mStoringLocationUpdates = true;
                     setButtonsEnabledState();
                     // create filename based off of current trip number

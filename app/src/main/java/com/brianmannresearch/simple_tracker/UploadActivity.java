@@ -1,7 +1,9 @@
 package com.brianmannresearch.simple_tracker;
 
 import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.graphics.Color;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -76,18 +78,7 @@ public class UploadActivity extends AppCompatActivity implements View.OnClickLis
                 dialog = ProgressDialog.show(UploadActivity.this, "", "Uploading...", true);
                 TextView textView = (TextView) findViewById(view.getId());
                 Filename = textView.getText().toString();
-                Thread thread = new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        uploadPhoto(Filename);
-                    }
-                });
-                thread.start();
-                try {
-                    thread.join();
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
+                showUploadAlert();
                 break;
         }
     }
@@ -96,6 +87,37 @@ public class UploadActivity extends AppCompatActivity implements View.OnClickLis
     public void onBackPressed() {
         super.onBackPressed();
         finish();
+    }
+
+    private void showUploadAlert(){
+        AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);
+
+        alertDialog.setTitle("Upload Photo");
+        alertDialog.setMessage("Confirm that you want to upload " + Filename)
+                .setCancelable(false)
+                .setPositiveButton("Confirm", new DialogInterface.OnClickListener(){
+                    public void onClick(final DialogInterface dialog, final int id) {
+                        Thread thread = new Thread(new Runnable() {
+                            @Override
+                            public void run() {
+                                uploadPhoto(Filename);
+                            }
+                        });
+                        thread.start();
+                        try {
+                            thread.join();
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                })
+                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    public void onClick(final DialogInterface dialog, final int id){
+                        dialog.cancel();
+                    }
+                });
+        final AlertDialog alert = alertDialog.create();
+        alert.show();
     }
 
     private int uploadPhoto(String sourceFileUri) {
