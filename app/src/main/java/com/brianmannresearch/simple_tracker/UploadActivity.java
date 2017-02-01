@@ -28,7 +28,7 @@ public class UploadActivity extends AppCompatActivity implements View.OnClickLis
     private String[] files;
     private String Filename, upLoadServerUrl;
     private ProgressDialog dialog = null;
-    private int serverResponseCode = 0;
+    private int serverResponseCode = 0, currentid;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -77,6 +77,7 @@ public class UploadActivity extends AppCompatActivity implements View.OnClickLis
             default:
                 dialog = ProgressDialog.show(UploadActivity.this, "", "Uploading...", true);
                 TextView textView = (TextView) findViewById(view.getId());
+                currentid = view.getId();
                 Filename = textView.getText().toString();
                 showUploadAlert();
                 break;
@@ -97,6 +98,8 @@ public class UploadActivity extends AppCompatActivity implements View.OnClickLis
                 .setCancelable(false)
                 .setPositiveButton("Confirm", new DialogInterface.OnClickListener(){
                     public void onClick(final DialogInterface dialog, final int id) {
+                        TextView textView = (TextView) findViewById(currentid);
+                        textView.setTextColor(Color.RED);
                         Thread thread = new Thread(new Runnable() {
                             @Override
                             public void run() {

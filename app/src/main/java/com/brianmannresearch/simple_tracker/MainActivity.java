@@ -40,7 +40,7 @@ import static android.icu.text.DateFormat.getTimeInstance;
 
 public class MainActivity extends AppCompatActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener, View.OnClickListener {
 
-    private static final int LOCATION_REQUEST = 1, STORAGE_REQUEST = 2, GET_ACCOUNTS = 3;
+    private static final int LOCATION_REQUEST = 1, STORAGE_REQUEST = 2;
     private static final long UPDATE_INTERVERAL_IN_MILLISECONDS = 1000;
 
     private String[] files, filename;
@@ -77,11 +77,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
                 ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, STORAGE_REQUEST);
             }
-        }
-        // check if application has permission to access stored accounts
-        // if not, request permission
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.GET_ACCOUNTS) != PackageManager.PERMISSION_GRANTED){
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.GET_ACCOUNTS}, GET_ACCOUNTS);
         }
 
         // get the username

@@ -49,7 +49,7 @@
     <Button
         android:id="@+id/end_button"
         android:text="@string/end_button"
-        android:layout_above="@+id/history_button"
+        android:layout_above="@+id/upload_button"
         android:layout_height="wrap_content"
         android:layout_width="match_parent" />
 
