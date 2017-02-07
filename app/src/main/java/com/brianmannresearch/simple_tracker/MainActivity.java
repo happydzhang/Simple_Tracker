@@ -41,7 +41,7 @@ import static android.icu.text.DateFormat.getTimeInstance;
 public class MainActivity extends AppCompatActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener, View.OnClickListener {
 
     private static final int LOCATION_REQUEST = 1, STORAGE_REQUEST = 2;
-    private static final long UPDATE_INTERVERAL_IN_MILLISECONDS = 1000;
+    private static final long UPDATE_INTERVAL_IN_MILLISECONDS = 1000;
 
     private String[] files, filename;
     private int tripnumber = 1;
@@ -115,8 +115,8 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     private void createLocationRequest(){
         mLocationRequest = new LocationRequest();
         // desired interval for updates
-        mLocationRequest.setInterval(UPDATE_INTERVERAL_IN_MILLISECONDS);
-        mLocationRequest.setFastestInterval(UPDATE_INTERVERAL_IN_MILLISECONDS);
+        mLocationRequest.setInterval(UPDATE_INTERVAL_IN_MILLISECONDS);
+        mLocationRequest.setFastestInterval(UPDATE_INTERVAL_IN_MILLISECONDS);
         mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
     }
 
@@ -278,10 +278,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         TimeTextView.setText(String.format(Locale.US, "%s", mLastUpdateTime));
     }
 
-    private void stopLocationUpdates(){
-        LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
-    }
-
     private void showFinishAlert(){
         AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);
 
@@ -320,9 +316,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     @Override
     protected void onPause(){
         super.onPause();
-        if (mGoogleApiClient.isConnected()){
-            stopLocationUpdates();
-        }
     }
 
     @Override
@@ -346,7 +339,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
             try {
                 if (mStoringLocationUpdates) {
                     // write the new data to the file
-                    fos.write((String.valueOf(TimeTextView.getText()) + "::" + LatitudeTextView.getText() + "::" + LongitudeTextView.getText() + "\n").getBytes());
+                    fos.write((mLastUpdateTime + "::" + String.valueOf(mCurrentLocation.getLatitude()) + "::" + String.valueOf(mCurrentLocation.getLongitude()) + "\n").getBytes());
                 }
             }catch(Exception e){
                 e.printStackTrace();
@@ -362,7 +355,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         try {
             if (mStoringLocationUpdates) {
                 // write the new data to the file
-                fos.write((String.valueOf(TimeTextView.getText()) + "::" + LatitudeTextView.getText() + "::" + LongitudeTextView.getText() + "\n").getBytes());
+                fos.write((mLastUpdateTime + "::" + String.valueOf(mCurrentLocation.getLatitude()) + "::" + String.valueOf(mCurrentLocation.getLongitude()) + "\n").getBytes());
             }
         }catch(Exception e){
             e.printStackTrace();
