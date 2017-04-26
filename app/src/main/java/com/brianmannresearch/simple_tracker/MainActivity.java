@@ -19,8 +19,11 @@ import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -30,10 +33,15 @@ import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 
+import java.io.BufferedReader;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.text.DateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 
 import static android.icu.text.DateFormat.getTimeInstance;
@@ -42,14 +50,16 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
 
     private static final int LOCATION_REQUEST = 1, STORAGE_REQUEST = 2;
     private static final long UPDATE_INTERVAL_IN_MILLISECONDS = 1000;
+    private static final String usernames = "saved_users.txt";
 
     private String[] files, filename;
     private int tripnumber = 1;
     private String Filename, username;
-    private FileOutputStream fos;
+    private FileOutputStream fos, nfos, afos;
     private GoogleApiClient mGoogleApiClient;
     private LocationRequest mLocationRequest;
     private Location mCurrentLocation;
+    private List<String> users = new ArrayList<>();
 
     private Button startButton, endButton, exitButton, historyButton, uploadButton;
     private TextView LatitudeTextView, LongitudeTextView, TimeTextView;
@@ -77,6 +87,28 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
                 ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, STORAGE_REQUEST);
             }
+        }
+
+        // try to open file containing existing usernames
+        try{
+            FileInputStream fis = openFileInput(usernames);
+            InputStreamReader isr = new InputStreamReader(fis);
+            BufferedReader bufferedReader = new BufferedReader(isr);
+            String line;
+            users.add("");
+            while ((line = bufferedReader.readLine()) != null){
+                users.add(line);
+            }
+            fis.close();
+            afos = openFileOutput(usernames, Context.MODE_APPEND);
+            // otherwise create the file
+        }catch (Exception e){
+            try {
+                nfos = openFileOutput(usernames, Context.MODE_PRIVATE);
+            }catch (Exception er){
+                er.printStackTrace();
+            }
+            e.printStackTrace();
         }
 
         // get the username
@@ -167,9 +199,28 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);
         LayoutInflater inflater = this.getLayoutInflater();
 
+        View myView = inflater.inflate(R.layout.text_dialog, null);
+
+        Spinner spinner = (Spinner) myView.findViewById(R.id.usernamespinner);
+        final EditText editText = (EditText) myView.findViewById(R.id.text);
+        final ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, users);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinner.setAdapter(adapter);
+        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int pos, long id) {
+                editText.setText(adapterView.getItemAtPosition(pos).toString());
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+
+            }
+        });
+
         alertDialog.setMessage("Please enter a username:")
                 .setCancelable(false)
-                .setView(inflater.inflate(R.layout.text_dialog, null))
+                .setView(myView)
                 .setPositiveButton("Confirm", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
@@ -188,6 +239,36 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                                 if (filename[filename.length - 1].matches(username + "\\S*Trip_\\d*")) {
                                     tripnumber++;
                                 }
+                            }
+                            // check if this is first time the application has been run and write to the empty username file
+                            if (nfos != null){
+                                try {
+                                    nfos.write((username+"\n").getBytes());
+                                    nfos.close();
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
+                                // otherwise, append to the existing file
+                            }else if (afos != null){
+                                try {
+                                    Boolean match = false;
+                                    for (String user : users){
+                                        if (username.matches(user)){
+                                            match = true;
+                                            break;
+                                        }
+                                    }
+                                    // if it is a new username, add it to the list
+                                    // otherwise, do not
+                                    if (!match) {
+                                        afos.write((username+"\n").getBytes());
+                                        afos.close();
+                                    }
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
+                            }else{
+                                Toast.makeText(MainActivity.this, "Username not stored", Toast.LENGTH_LONG).show();
                             }
                         }
                     }

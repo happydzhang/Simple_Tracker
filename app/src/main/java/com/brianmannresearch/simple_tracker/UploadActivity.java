@@ -37,7 +37,7 @@ public class UploadActivity extends AppCompatActivity implements View.OnClickLis
 
         returnButton = (Button) findViewById(R.id.return_button);
 
-        upLoadServerUrl = "http://ndssl.000webhostapp.com/tracker/upload.php";
+        upLoadServerUrl = "http://sslab.nd.edu/tracker/upload.php";
 
         linearLayout = (LinearLayout) findViewById(R.id.upload_linear);
         // check for previous trips to display
