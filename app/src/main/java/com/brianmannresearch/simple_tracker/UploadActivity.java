@@ -1,6 +1,5 @@
 package com.brianmannresearch.simple_tracker;
 
-import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.graphics.Color;
 import android.support.v7.app.AlertDialog;
@@ -27,7 +26,6 @@ public class UploadActivity extends AppCompatActivity implements View.OnClickLis
     private TextView[] tv;
     private String[] files;
     private String Filename, upLoadServerUrl;
-    private ProgressDialog dialog = null;
     private int serverResponseCode = 0, currentid;
 
     @Override
@@ -75,7 +73,6 @@ public class UploadActivity extends AppCompatActivity implements View.OnClickLis
                 finish();
                 break;
             default:
-                dialog = ProgressDialog.show(UploadActivity.this, "", "Uploading...", true);
                 TextView textView = (TextView) findViewById(view.getId());
                 currentid = view.getId();
                 Filename = textView.getText().toString();
@@ -133,7 +130,6 @@ public class UploadActivity extends AppCompatActivity implements View.OnClickLis
         File sourceFile = getBaseContext().getFileStreamPath(sourceFileUri);
 
         if (!sourceFile.isFile()) {
-            dialog.dismiss();
 
             Log.e("uploadFile", "Source File does not exist: " + sourceFileUri);
             runOnUiThread(new Runnable() {
@@ -220,7 +216,6 @@ public class UploadActivity extends AppCompatActivity implements View.OnClickLis
                 dos.flush();
                 dos.close();
             } catch (MalformedURLException ex) {
-                dialog.dismiss();
                 ex.printStackTrace();
 
                 runOnUiThread(new Runnable() {
@@ -231,7 +226,6 @@ public class UploadActivity extends AppCompatActivity implements View.OnClickLis
                 });
                 Log.e("Upload file to server", "error: " + ex.getMessage(), ex);
             } catch (Exception e) {
-                dialog.dismiss();
                 e.printStackTrace();
 
                 runOnUiThread(new Runnable() {
@@ -242,7 +236,6 @@ public class UploadActivity extends AppCompatActivity implements View.OnClickLis
                 });
                 Log.e("Upload file exception", "Exception: " + e.getMessage(), e);
             }
-            dialog.dismiss();
             return serverResponseCode;
         }
     }
